@@ -3,9 +3,18 @@ from kivy.uix.screenmanager import ScreenManager, FadeTransition
 from kivy.core.window import Window
 from kivy.core.text import LabelBase
 from kivy.config import Config
+import os
+import platform
 
-# 注册中文字体
-LabelBase.register(name='DefaultFont', fn_regular='C:/Windows/Fonts/simhei.ttf')
+# 注册中文字体（跨平台兼容）
+if platform.system() == 'Windows':
+    font_path = 'C:/Windows/Fonts/simhei.ttf'
+else:
+    # Linux/Android 使用系统字体或应用内字体
+    font_path = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
+
+if os.path.exists(font_path):
+    LabelBase.register(name='DefaultFont', fn_regular=font_path)
 
 # 设置窗口大小（模拟手机屏幕）
 Config.set('graphics', 'width', '400')
