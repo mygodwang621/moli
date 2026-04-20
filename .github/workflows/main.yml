@@ -25,7 +25,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get install -y python3-pip build-essential git ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0 gstreamer1.0-plugins-base gstreamer1.0-plugins-good openjdk-17-jdk libtool libtool-bin autoconf automake pkg-config
-        pip install buildozer cython
+        pip install buildozer==1.5.0 cython==0.29.37 python-for-android==2024.1.21
 
     - name: Build APK
       env:
