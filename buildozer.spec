@@ -12,7 +12,7 @@ package.domain = com.molijiang.app
 source.dir = .
 
 # 主程序文件
-source.include_exts = py,png,jpg,kv,atlas,json,ttf
+source.include_exts = py,png,jpg,kv,atlas,json,ttf,ttc,otf
 
 # 版本号
 version = 1.0.0

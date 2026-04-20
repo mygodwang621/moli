@@ -6,20 +6,26 @@ from kivy.config import Config
 import os
 import platform
 
-# 注册中文字体（跨平台兼容）
-if platform.system() == 'Windows':
+# 注册中文字体（跨平台兼容，优先使用打包内字体）
+_base_dir = os.path.dirname(os.path.abspath(__file__))
+_bundled_font = os.path.join(_base_dir, 'assets', 'fonts', 'simhei.ttf')
+
+if os.path.exists(_bundled_font):
+    font_path = _bundled_font
+elif platform.system() == 'Windows':
     font_path = 'C:/Windows/Fonts/simhei.ttf'
 else:
-    # Linux/Android 使用系统字体或应用内字体
-    font_path = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
+    font_path = None
 
-if os.path.exists(font_path):
+if font_path and os.path.exists(font_path):
     LabelBase.register(name='DefaultFont', fn_regular=font_path)
+    LabelBase.register(name='Roboto', fn_regular=font_path)
 
-# 设置窗口大小（模拟手机屏幕）
-Config.set('graphics', 'width', '400')
-Config.set('graphics', 'height', '700')
-Window.size = (400, 700)
+# 仅在桌面端限制窗口大小，Android 使用全屏
+if platform.system() in ('Windows', 'Linux', 'Darwin'):
+    Config.set('graphics', 'width', '400')
+    Config.set('graphics', 'height', '700')
+    Window.size = (400, 700)
 
 # 导入各个屏幕
 from screens.home_screen import HomeScreen

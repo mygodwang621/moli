@@ -15,14 +15,29 @@ jobs:
       with:
         python-version: '3.10'
     
-    - name: Install dependencies
+    - name: Unzip project files
       run: |
         sudo apt-get update
-        sudo apt-get install -y python3-pip build-essential git ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0 gstreamer1.0-plugins-base gstreamer1.0-plugins-good
-        pip install buildozer cython
+        sudo apt-get install -y unzip
+        unzip -o molijiang.zip -d . || true
+        ls -la
     
+    - name: Install dependencies
+      run: |
+        sudo apt-get install -y python3-pip build-essential git ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0 gstreamer1.0-plugins-base gstreamer1.0-plugins-good openjdk-17-jdk
+        pip install buildozer cython
+
     - name: Build APK
-      run: buildozer android debug
+      env:
+        JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
+      run: |
+        yes | buildozer android debug 2>&1 | tee build.log || true
+        # 如果正常构建失败，检查是否是许可证问题
+        if [ ! -f bin/*.apk ]; then
+          echo "=== Build failed, check log ==="
+          tail -50 build.log
+          exit 1
+        fi
     
     - name: Upload APK
       uses: actions/upload-artifact@v4
