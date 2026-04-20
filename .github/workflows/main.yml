@@ -34,7 +34,7 @@ jobs:
         yes | buildozer android debug 2>&1 | tee build.log || true
         if [ ! -f bin/*.apk ]; then
           echo "=== Build failed, check log ==="
-          tail -50 build.log
+          tail -80 build.log
           exit 1
         fi
     

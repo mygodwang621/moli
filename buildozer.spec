@@ -18,7 +18,7 @@ source.include_exts = py,png,jpg,kv,atlas,json,ttf
 version = 1.0.0
 
 # 依赖项
-requirements = python3,kivy,Pillow
+requirements = python3,kivy
 
 # 图标（如果有的话）
 # icon.filename = assets/icon.png
