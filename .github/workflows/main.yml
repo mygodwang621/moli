@@ -32,10 +32,16 @@ jobs:
         JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
         ACLOCAL_PATH: /usr/share/aclocal
       run: |
-        # Ubuntu 24.04 libffi fix: copy libtool m4 macros to aclocal path
-        sudo find /usr -name "libtool.m4" -exec cp {} /usr/share/aclocal/ \; 2>/dev/null || true
-        sudo find /usr -name "lt*.m4" -exec cp {} /usr/share/aclocal/ \; 2>/dev/null || true
-        ls /usr/share/aclocal/lt*.m4 2>/dev/null || echo "no lt m4 files found"
+        # Ubuntu 24.04 libffi fix: libtool.m4 contains LT_SYS_SYMBOL_USCORE
+        # libtoolize --copy does NOT copy libtool.m4, only aux files
+        # We need to make libtool.m4 available in aclocal path
+        LIBTOOL_M4=$(find /usr -name "libtool.m4" 2>/dev/null | head -1)
+        echo "Found libtool.m4 at: $LIBTOOL_M4"
+        if [ -n "$LIBTOOL_M4" ]; then
+          sudo cp "$LIBTOOL_M4" /usr/share/aclocal/libtool.m4
+          echo "Copied libtool.m4 to /usr/share/aclocal/"
+        fi
+        ls /usr/share/aclocal/libtool.m4 || echo "libtool.m4 NOT found in aclocal"
         yes | buildozer android debug 2>&1 | tee build.log || true
         if [ ! -f bin/*.apk ]; then
           echo "=== Build failed, check log ==="
