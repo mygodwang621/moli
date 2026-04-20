@@ -30,18 +30,27 @@ jobs:
     - name: Build APK
       env:
         JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
-        ACLOCAL_PATH: /usr/share/aclocal
       run: |
-        # Ubuntu 24.04 libffi fix: libtool.m4 contains LT_SYS_SYMBOL_USCORE
-        # libtoolize --copy does NOT copy libtool.m4, only aux files
-        # We need to make libtool.m4 available in aclocal path
-        LIBTOOL_M4=$(find /usr -name "libtool.m4" 2>/dev/null | head -1)
-        echo "Found libtool.m4 at: $LIBTOOL_M4"
-        if [ -n "$LIBTOOL_M4" ]; then
-          sudo cp "$LIBTOOL_M4" /usr/share/aclocal/libtool.m4
-          echo "Copied libtool.m4 to /usr/share/aclocal/"
-        fi
-        ls /usr/share/aclocal/libtool.m4 || echo "libtool.m4 NOT found in aclocal"
+        # Ubuntu 24.04 libffi fix: patch p4a libffi recipe to copy libtool.m4 into m4/ dir before autogen
+        P4A_LIBFFI=$(python -c "import pythonforandroid; import os; print(os.path.join(os.path.dirname(pythonforandroid.__file__), 'recipes', 'libffi', '__init__.py'))")
+        echo "Patching: $P4A_LIBFFI"
+        # Insert libtool.m4 copy before autogen call
+        python3 -c "
+import re
+with open('$P4A_LIBFFI', 'r') as f:
+    content = f.read()
+patch = '''
+        import shutil, glob
+        m4_dir = join(build_dir, 'm4')
+        os.makedirs(m4_dir, exist_ok=True)
+        for m4f in glob.glob('/usr/share/aclocal/lt*.m4') + glob.glob('/usr/share/aclocal/libtool.m4'):
+            shutil.copy2(m4f, m4_dir)
+'''
+content = content.replace('        shprint(sh.bash', patch + '        shprint(sh.bash', 1)
+with open('$P4A_LIBFFI', 'w') as f:
+    f.write(content)
+print('Patch applied')
+"
         yes | buildozer android debug 2>&1 | tee build.log || true
         if [ ! -f bin/*.apk ]; then
           echo "=== Build failed, check log ==="
