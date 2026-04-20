@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     
     steps:
     - uses: actions/checkout@v4
@@ -24,37 +24,17 @@ jobs:
     
     - name: Install dependencies
       run: |
-        sudo apt-get install -y python3-pip build-essential git ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0 gstreamer1.0-plugins-base gstreamer1.0-plugins-good openjdk-17-jdk libtool libtool-bin autoconf automake pkg-config libffi-dev
-        pip install buildozer==1.5.0 cython==0.29.37 python-for-android==2024.1.21
+        sudo apt-get install -y python3-pip build-essential git ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0 gstreamer1.0-plugins-base gstreamer1.0-plugins-good openjdk-17-jdk libtool autoconf automake pkg-config
+        pip install buildozer cython
 
     - name: Build APK
       env:
         JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
       run: |
-        # Ubuntu 24.04 libffi fix: patch p4a libffi recipe to copy libtool.m4 into m4/ dir before autogen
-        P4A_LIBFFI=$(python -c "import pythonforandroid; import os; print(os.path.join(os.path.dirname(pythonforandroid.__file__), 'recipes', 'libffi', '__init__.py'))")
-        echo "Patching: $P4A_LIBFFI"
-        # Insert libtool.m4 copy before autogen call
-        python3 -c "
-import re
-with open('$P4A_LIBFFI', 'r') as f:
-    content = f.read()
-patch = '''
-        import shutil, glob
-        m4_dir = join(build_dir, 'm4')
-        os.makedirs(m4_dir, exist_ok=True)
-        for m4f in glob.glob('/usr/share/aclocal/lt*.m4') + glob.glob('/usr/share/aclocal/libtool.m4'):
-            shutil.copy2(m4f, m4_dir)
-'''
-content = content.replace('        shprint(sh.bash', patch + '        shprint(sh.bash', 1)
-with open('$P4A_LIBFFI', 'w') as f:
-    f.write(content)
-print('Patch applied')
-"
         yes | buildozer android debug 2>&1 | tee build.log || true
         if [ ! -f bin/*.apk ]; then
-          echo "=== Build failed, check log ==="
-          tail -80 build.log
+          echo "=== Build failed ==="
+          tail -50 build.log
           exit 1
         fi
     
