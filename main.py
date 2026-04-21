@@ -3,6 +3,7 @@ from kivy.uix.screenmanager import ScreenManager, FadeTransition
 from kivy.core.window import Window
 from kivy.core.text import LabelBase
 from kivy.config import Config
+from kivy.clock import Clock
 import os
 import platform
 
@@ -26,6 +27,23 @@ if platform.system() in ('Windows', 'Linux', 'Darwin'):
     Config.set('graphics', 'width', '400')
     Config.set('graphics', 'height', '700')
     Window.size = (400, 700)
+else:
+    # Android / HarmonyOS 强制全屏，适配任意分辨率
+    try:
+        from android.runnable import run_on_ui_thread
+        from jnius import autoclass
+        View = autoclass('android.view.View')
+        @run_on_ui_thread
+        def hide_status_bar(*args):
+            activity = autoclass('org.kivy.android.PythonActivity').mActivity
+            decor = activity.getWindow().getDecorView()
+            flags = (View.SYSTEM_UI_FLAG_FULLSCREEN |
+                     View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+                     View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
+            decor.setSystemUiVisibility(flags)
+        Clock.schedule_once(hide_status_bar, 0.5)
+    except Exception:
+        pass
 
 # 导入各个屏幕
 from screens.home_screen import HomeScreen

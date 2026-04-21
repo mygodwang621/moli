@@ -40,8 +40,8 @@ android.archs = armeabi-v7a,arm64-v8a
 # 屏幕方向
 orientation = portrait
 
-# 全屏
-fullscreen = 0
+# 全屏（Android 全屏适配）
+fullscreen = 1
 
 [buildozer]
 # 日志级别
