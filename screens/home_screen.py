@@ -103,23 +103,23 @@ class HomeScreen(Screen):
         # 使用图片
         molijiang_img = Image(
             source='assets/images/characters/molijiang.png',
-            size_hint_y=0.6,
+            size_hint_y=0.65,
             allow_stretch=True,
             keep_ratio=True
         )
         molijiang_box.add_widget(molijiang_img)
         molijiang_box.add_widget(Label(
             text='茉莉酱',
-            font_size='14sp',
+            font_size='15sp',
             color=(0.9, 0.4, 0.6, 1),
             bold=True,
             font_name='DefaultFont',
-            size_hint_y=0.25
+            size_hint_y=0.2
         ))
         molijiang_box.add_widget(Label(
             text='二年级小学生',
-            font_size='10sp',
-            color=(0.5, 0.5, 0.5, 1),
+            font_size='11sp',
+            color=(0.5, 0.4, 0.6, 1),
             font_name='DefaultFont',
             size_hint_y=0.15
         ))
