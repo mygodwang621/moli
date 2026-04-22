@@ -40,8 +40,21 @@ from screens.report_screen import ReportScreen
 from screens.settings_screen import SettingsScreen
 
 
+def _get_real_screen_height():
+    """获取 Android 设备的真实屏幕高度（含状态栏）"""
+    try:
+        from jnius import autoclass
+        activity = autoclass('org.kivy.android.PythonActivity').mActivity
+        DisplayMetrics = autoclass('android.util.DisplayMetrics')
+        dm = DisplayMetrics()
+        activity.getWindowManager().getDefaultDisplay().getRealMetrics(dm)
+        return dm.heightPixels
+    except Exception:
+        return 0
+
+
 def _apply_android_fullscreen(*args):
-    """Android 沉浸式全屏，在 UI 线程执行"""
+    """Android 沉浸式全屏 + 修正 Kivy 窗口高度"""
     try:
         from android.runnable import run_on_ui_thread
         from jnius import autoclass
@@ -52,7 +65,6 @@ def _apply_android_fullscreen(*args):
             activity = autoclass('org.kivy.android.PythonActivity').mActivity
             window = activity.getWindow()
             decor = window.getDecorView()
-            # 让窗口布局延伸到状态栏和导航栏下面
             WindowManager = autoclass('android.view.WindowManager$LayoutParams')
             flags = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
                      View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
@@ -61,11 +73,20 @@ def _apply_android_fullscreen(*args):
                      View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
                      View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
             decor.setSystemUiVisibility(flags)
-            # 同时设置窗口 flag 让内容填充状态栏区域
             window.addFlags(WindowManager.FLAG_FULLSCREEN)
             window.addFlags(WindowManager.FLAG_LAYOUT_NO_LIMITS)
 
         _do_fullscreen()
+    except Exception:
+        pass
+
+
+def _fix_window_size(*args):
+    """修正 Kivy 窗口尺寸为真实屏幕高度，解决 SurfaceFlinger bufHeight 不匹配黑屏"""
+    try:
+        real_h = _get_real_screen_height()
+        if real_h > 0 and Window.height != real_h:
+            Window.size = (Window.width, real_h)
     except Exception:
         pass
 
@@ -78,11 +99,13 @@ class MolijiangApp(App):
 
         # 背景色：Android 用黑色避免启动闪白屏，桌面用白色
         if platform.system() not in ('Windows', 'Linux', 'Darwin'):
-            Window.clearcolor = (0, 0, 0, 1)   # Android 启动时黑色底，避免闪白
-            # 立即执行一次，再延迟 0.5 秒重复确保生效
+            Window.clearcolor = (0, 0, 0, 1)
+            # 第一步：立即修正窗口尺寸（让 Kivy Surface 用正确高度初始化）
+            Clock.schedule_once(_fix_window_size, 0)
+            # 第二步：设置全屏 Flag（隐藏状态栏/导航栏）
             Clock.schedule_once(_apply_android_fullscreen, 0)
-            Clock.schedule_once(_apply_android_fullscreen, 0.5)
-            Clock.schedule_once(_apply_android_fullscreen, 1.5)
+            Clock.schedule_once(_apply_android_fullscreen, 0.3)
+            Clock.schedule_once(_apply_android_fullscreen, 1.0)
         else:
             Window.clearcolor = (1, 1, 1, 1)
 
