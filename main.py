@@ -22,28 +22,11 @@ if font_path and os.path.exists(font_path):
     LabelBase.register(name='DefaultFont', fn_regular=font_path)
     LabelBase.register(name='Roboto', fn_regular=font_path)
 
-# 仅在桌面端限制窗口大小，Android 使用全屏
+# 桌面端限制窗口大小
 if platform.system() in ('Windows', 'Linux', 'Darwin'):
     Config.set('graphics', 'width', '400')
     Config.set('graphics', 'height', '700')
     Window.size = (400, 700)
-else:
-    # Android / HarmonyOS 强制全屏，适配任意分辨率
-    try:
-        from android.runnable import run_on_ui_thread
-        from jnius import autoclass
-        View = autoclass('android.view.View')
-        @run_on_ui_thread
-        def hide_status_bar(*args):
-            activity = autoclass('org.kivy.android.PythonActivity').mActivity
-            decor = activity.getWindow().getDecorView()
-            flags = (View.SYSTEM_UI_FLAG_FULLSCREEN |
-                     View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
-                     View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
-            decor.setSystemUiVisibility(flags)
-        Clock.schedule_once(hide_status_bar, 0.5)
-    except Exception:
-        pass
 
 # 导入各个屏幕
 from screens.home_screen import HomeScreen
@@ -57,19 +40,47 @@ from screens.report_screen import ReportScreen
 from screens.settings_screen import SettingsScreen
 
 
+def _apply_android_fullscreen(*args):
+    """Android 沉浸式全屏，在 UI 线程执行"""
+    try:
+        from android.runnable import run_on_ui_thread
+        from jnius import autoclass
+
+        @run_on_ui_thread
+        def _do_fullscreen():
+            View = autoclass('android.view.View')
+            activity = autoclass('org.kivy.android.PythonActivity').mActivity
+            decor = activity.getWindow().getDecorView()
+            flags = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+                     View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+                     View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+                     View.SYSTEM_UI_FLAG_FULLSCREEN |
+                     View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+                     View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
+            decor.setSystemUiVisibility(flags)
+
+        _do_fullscreen()
+    except Exception:
+        pass
+
+
 class MolijiangApp(App):
     """茉莉酱学习乐园 App"""
-    
+
     def build(self):
         self.title = '茉莉酱的学习乐园'
-        
-        # 设置窗口背景为白色
-        from kivy.core.window import Window
-        Window.clearcolor = (1, 1, 1, 1)  # 白色背景
-        
+
+        # 背景色：Android 用黑色避免启动闪白屏，桌面用白色
+        if platform.system() not in ('Windows', 'Linux', 'Darwin'):
+            Window.clearcolor = (0, 0, 0, 1)   # Android 启动时黑色底，避免闪白
+            # 延迟 1 秒应用全屏（等 Activity 初始化完成）
+            Clock.schedule_once(_apply_android_fullscreen, 1)
+        else:
+            Window.clearcolor = (1, 1, 1, 1)
+
         # 创建屏幕管理器
         sm = ScreenManager(transition=FadeTransition())
-        
+
         # 添加各个屏幕
         sm.add_widget(HomeScreen(name='home'))
         sm.add_widget(QuizScreen(name='quiz'))
@@ -80,7 +91,7 @@ class MolijiangApp(App):
         sm.add_widget(DressUpScreen(name='dressup'))
         sm.add_widget(ReportScreen(name='report'))
         sm.add_widget(SettingsScreen(name='settings'))
-        
+
         return sm
 
 
