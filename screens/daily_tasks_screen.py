@@ -222,7 +222,7 @@ class DailyTasksScreen(Screen):
             color=(0.5, 0.5, 0.5, 1),
             font_name='DefaultFont'
         ))
-        reward_text = f'[金币] {task["reward_coins"]}'
+        reward_text = f'{task["reward_coins"]} 金币'
         if task['reward_item']:
             reward_text += f' + {task["reward_item"]}'
         info_box.add_widget(Label(
@@ -275,10 +275,10 @@ class DailyTasksScreen(Screen):
             game_data.save_data()
             
             # 显示奖励
-            reward_msg = f'[金币] +{task["reward_coins"]}'
+            reward_msg = f'+{task["reward_coins"]} 金币'
             if task['reward_item']:
                 reward_msg += f'\n{task["reward_item"]} x1'
-            self.show_message(f'[庆祝] 任务完成！\n{reward_msg}')
+            self.show_message(f'任务完成！\n{reward_msg}')
             
             # 刷新显示
             self.update_task_display()
@@ -307,7 +307,7 @@ class DailyTasksScreen(Screen):
         
         if claimed_any:
             game_data.save_data()
-            reward_msg = f'[金币] +{total_coins}'
+            reward_msg = f'+{total_coins} 金币'
             if total_items:
                 reward_msg += f'\n获得了: {", ".join(total_items)}'
             self.show_message(f'[庆祝] 全部领取成功！\n{reward_msg}')

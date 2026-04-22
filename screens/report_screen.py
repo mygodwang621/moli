@@ -83,7 +83,7 @@ class ReportScreen(Screen):
         card.bind(size=lambda obj, val: setattr(card.rect, 'size', val))
         
         card.add_widget(Label(
-            text='[统计] 学习概况',
+            text='学习概况',
             font_size='18sp',
             color=(0.3, 0.7, 0.9, 1),
             bold=True,
@@ -96,12 +96,12 @@ class ReportScreen(Screen):
         
         self.stat_labels = {}
         stats = [
-            ('total_questions', '答题总数', '[书]'),
-            ('correct_rate', '正确率', '[靶]'),
-            ('total_coins', '获得金币', '[金币]'),
-            ('pig_level', '猪小弟等级', '[猪]'),
-            ('study_days', '学习天数', '[日历]'),
-            ('today_questions', '今日答题', '[今日]')
+            ('total_questions', '答题总数', '📚'),
+            ('correct_rate', '正确率', '🎯'),
+            ('total_coins', '获得金币', '💰'),
+            ('pig_level', '猪小弟等级', '🐷'),
+            ('study_days', '学习天数', '📅'),
+            ('today_questions', '今日答题', '✏️')
         ]
         
         for key, label, icon in stats:
@@ -136,7 +136,7 @@ class ReportScreen(Screen):
         card.bind(size=lambda obj, val: setattr(card.rect, 'size', val))
         
         card.add_widget(Label(
-            text='[科目] 各科成绩',
+            text='各科成绩',
             font_size='18sp',
             color=(0.95, 0.5, 0.3, 1),
             bold=True,
@@ -187,7 +187,7 @@ class ReportScreen(Screen):
         card.bind(size=lambda obj, val: setattr(card.rect, 'size', val))
         
         card.add_widget(Label(
-            text='[趋势] 学习进度',
+            text='学习进度',
             font_size='18sp',
             color=(0.4, 0.8, 0.4, 1),
             bold=True,
@@ -221,7 +221,7 @@ class ReportScreen(Screen):
         card.bind(size=lambda obj, val: setattr(card.rect, 'size', val))
         
         card.add_widget(Label(
-            text='[奖杯] 成就进度',
+            text='成就进度',
             font_size='18sp',
             color=(1, 0.84, 0, 1),
             bold=True,
@@ -324,7 +324,7 @@ class ReportScreen(Screen):
         
         for name, unlocked in checks:
             if unlocked:
-                self.achievement_labels[name].text = '[对] 已解锁'
+                self.achievement_labels[name].text = '✓ 已解锁'
                 self.achievement_labels[name].color = (0.4, 0.8, 0.4, 1)
     
     def go_back(self):

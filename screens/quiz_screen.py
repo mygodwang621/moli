@@ -357,7 +357,7 @@ class QuizScreen(Screen):
         """显示答题结果"""
         content = BoxLayout(orientation='vertical', padding=10, spacing=10)
         content.add_widget(Label(
-            text=f'[庆祝] 答题完成！\n\n总得分: {self.score} 金币',
+            text=f'答题完成！\n\n总得分: {self.score} 金币',
             font_size='22sp',
             font_name='DefaultFont'
         ))

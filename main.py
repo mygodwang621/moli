@@ -50,7 +50,10 @@ def _apply_android_fullscreen(*args):
         def _do_fullscreen():
             View = autoclass('android.view.View')
             activity = autoclass('org.kivy.android.PythonActivity').mActivity
-            decor = activity.getWindow().getDecorView()
+            window = activity.getWindow()
+            decor = window.getDecorView()
+            # 让窗口布局延伸到状态栏和导航栏下面
+            WindowManager = autoclass('android.view.WindowManager$LayoutParams')
             flags = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
                      View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
                      View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
@@ -58,6 +61,9 @@ def _apply_android_fullscreen(*args):
                      View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
                      View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
             decor.setSystemUiVisibility(flags)
+            # 同时设置窗口 flag 让内容填充状态栏区域
+            window.addFlags(WindowManager.FLAG_FULLSCREEN)
+            window.addFlags(WindowManager.FLAG_LAYOUT_NO_LIMITS)
 
         _do_fullscreen()
     except Exception:
@@ -73,8 +79,10 @@ class MolijiangApp(App):
         # 背景色：Android 用黑色避免启动闪白屏，桌面用白色
         if platform.system() not in ('Windows', 'Linux', 'Darwin'):
             Window.clearcolor = (0, 0, 0, 1)   # Android 启动时黑色底，避免闪白
-            # 延迟 1 秒应用全屏（等 Activity 初始化完成）
-            Clock.schedule_once(_apply_android_fullscreen, 1)
+            # 立即执行一次，再延迟 0.5 秒重复确保生效
+            Clock.schedule_once(_apply_android_fullscreen, 0)
+            Clock.schedule_once(_apply_android_fullscreen, 0.5)
+            Clock.schedule_once(_apply_android_fullscreen, 1.5)
         else:
             Window.clearcolor = (1, 1, 1, 1)
 

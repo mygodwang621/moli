@@ -31,7 +31,7 @@ class AchievementsScreen(Screen):
         nav_bar.add_widget(back_btn)
         
         nav_bar.add_widget(Label(
-            text='[奖杯] 学习成就',
+            text='学习成就',
             font_size='22sp',
             color=(1, 0.84, 0, 1),
             bold=True,
@@ -66,7 +66,7 @@ class AchievementsScreen(Screen):
         
         # 标题
         self.stats_box.add_widget(Label(
-            text='[统计] 学习统计',
+            text='学习统计',
             font_size='20sp',
             color=(0.3, 0.7, 0.9, 1),
             bold=True,
@@ -78,9 +78,9 @@ class AchievementsScreen(Screen):
         stats_row = BoxLayout(spacing=10, size_hint_y=0.35)
         
         stats_data = [
-            ('[书] 答题总数', achievements.get('questions_answered', 0)),
-            ('[对] 正确答题', achievements.get('correct_answers', 0)),
-            ('[猪] 猪小弟等级', pig.get('level', 1))
+            ('答题总数', achievements.get('questions_answered', 0)),
+            ('正确答题', achievements.get('correct_answers', 0)),
+            ('猪小弟等级', pig.get('level', 1))
         ]
         
         for label, value in stats_data:
@@ -97,7 +97,7 @@ class AchievementsScreen(Screen):
         rate = (correct / total * 100) if total > 0 else 0
         
         self.stats_box.add_widget(Label(
-            text=f'[靶] 正确率: {rate:.1f}%',
+            text=f'正确率: {rate:.1f}%',
             font_size='16sp',
             color=(0.4, 0.8, 0.4, 1) if rate >= 80 else (0.9, 0.7, 0.2, 1) if rate >= 60 else (0.9, 0.4, 0.4, 1),
             size_hint_y=0.25,
@@ -108,61 +108,61 @@ class AchievementsScreen(Screen):
         """创建成就列表"""
         achievements = [
             {
-                'icon': '[星]',
+                'icon': '⭐',
                 'name': '初出茅庐',
                 'desc': '完成第一次答题',
                 'condition': lambda: game_data.get_achievements().get('questions_answered', 0) >= 1
             },
             {
-                'icon': '[书]',
+                'icon': '📖',
                 'name': '小学者',
                 'desc': '累计答对10道题',
                 'condition': lambda: game_data.get_achievements().get('correct_answers', 0) >= 10
             },
             {
-                'icon': '[帽]',
+                'icon': '🎓',
                 'name': '小学霸',
                 'desc': '累计答对50道题',
                 'condition': lambda: game_data.get_achievements().get('correct_answers', 0) >= 50
             },
             {
-                'icon': '[奖杯]',
+                'icon': '🏆',
                 'name': '知识达人',
                 'desc': '累计答对100道题',
                 'condition': lambda: game_data.get_achievements().get('correct_answers', 0) >= 100
             },
             {
-                'icon': '[猪]',
+                'icon': '🐷',
                 'name': '小猪饲养员',
                 'desc': '猪小弟达到3级',
                 'condition': lambda: game_data.get_pig_status().get('level', 1) >= 3
             },
             {
-                'icon': '[彩虹]',
+                'icon': '🌈',
                 'name': '猪小弟大师',
                 'desc': '猪小弟达到10级',
                 'condition': lambda: game_data.get_pig_status().get('level', 1) >= 10
             },
             {
-                'icon': '[金币]',
+                'icon': '💰',
                 'name': '小富翁',
                 'desc': '拥有500金币',
                 'condition': lambda: game_data.get_coins() >= 500
             },
             {
-                'icon': '[皇冠]',
+                'icon': '👑',
                 'name': '大富翁',
                 'desc': '拥有1000金币',
                 'condition': lambda: game_data.get_coins() >= 1000
             },
             {
-                'icon': '[靶]',
+                'icon': '🎯',
                 'name': '答题高手',
                 'desc': '正确率达到80%',
                 'condition': lambda: self.get_accuracy() >= 80
             },
             {
-                'icon': '[五星]',
+                'icon': '✨',
                 'name': '完美答题',
                 'desc': '正确率达到100%（至少答20题）',
                 'condition': lambda: self.get_accuracy() == 100 and game_data.get_achievements().get('questions_answered', 0) >= 20
@@ -180,11 +180,11 @@ class AchievementsScreen(Screen):
         # 背景色根据解锁状态
         if unlocked:
             bg_color = (0.9, 0.95, 0.9, 1)
-            status = '[对] 已解锁'
+            status = '✓ 已解锁'
             status_color = (0.3, 0.8, 0.3, 1)
         else:
             bg_color = (0.95, 0.95, 0.95, 1)
-            status = '[锁] 未解锁'
+            status = '🔒 未解锁'
             status_color = (0.6, 0.6, 0.6, 1)
         
         # 图标

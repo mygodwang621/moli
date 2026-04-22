@@ -90,10 +90,10 @@ class GameData:
         pig["growth"] += 10
         
         # 检查升级
-        self._check_level_up()
+        level_reward = self._check_level_up()
         
         self.save_data()
-        return True
+        return True, level_reward
     
     def use_item(self, item_name, item_data):
         """使用道具"""

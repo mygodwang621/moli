@@ -97,7 +97,7 @@ class ShopScreen(Screen):
     def update_coins(self, dt):
         """更新金币显示"""
         self.coins = game_data.get_coins()
-        self.coins_label.text = f'[金币] {self.coins}'
+        self.coins_label.text = f'{self.coins}'
     
     def show_shop(self):
         """显示商店"""
@@ -126,6 +126,7 @@ class ShopScreen(Screen):
         # 食物商品
         food_icons = {
             '普通饲料': 'assets/images/foods/feed.png',
+            '营养饲料': 'assets/images/foods/feed.png',
             '红苹果': 'assets/images/foods/apple.png',
             '美味蛋糕': 'assets/images/foods/cake.png',
             '超级大餐': 'assets/images/foods/meal.png',
@@ -298,11 +299,11 @@ class ShopScreen(Screen):
             food_grid = GridLayout(cols=4, spacing=10, padding=10, size_hint_y=None, height=180)
             # 食物图标映射
             food_icons = {
-                '普通饲料': 'assets/images/foods/food_normal.png',
-                '营养饲料': 'assets/images/foods/food_nutritious.png',
-                '美味蛋糕': 'assets/images/foods/food_cake.png',
-                '超级大餐': 'assets/images/foods/food_feast.png',
-                '爱心便当': 'assets/images/foods/food_bento.png'
+                '普通饲料': 'assets/images/foods/feed.png',
+                '营养饲料': 'assets/images/foods/feed.png',
+                '美味蛋糕': 'assets/images/foods/cake.png',
+                '超级大餐': 'assets/images/foods/meal.png',
+                '爱心便当': 'assets/images/foods/bento.png'
             }
             
             for food_name, quantity in foods.items():
@@ -349,11 +350,13 @@ class ShopScreen(Screen):
             item_grid = GridLayout(cols=4, spacing=10, padding=10, size_hint_y=None, height=180)
             # 道具图标映射
             item_icons = {
-                '玩具球': 'assets/images/items/item_ball.png',
-                '飞盘': 'assets/images/items/item_frisbee.png',
-                '毛绒玩具': 'assets/images/items/item_plush.png',
-                '泡泡机': 'assets/images/items/item_bubble.png',
-                '音乐盒': 'assets/images/items/item_music.png'
+                '玩具球': 'assets/images/items/ball.png',
+                '飞盘': 'assets/images/items/ball.png',
+                '毛绒玩具': 'assets/images/items/ball.png',
+                '泡泡机': 'assets/images/items/bubble.png',
+                '故事书': 'assets/images/items/book.png',
+                '音乐盒': 'assets/images/items/ball.png',
+                '彩虹糖': 'assets/images/items/ball.png',
             }
             
             for item_name, quantity in items.items():

@@ -127,7 +127,7 @@ class PigHomeScreen(Screen):
         
         # 饱食度
         hunger_box = BoxLayout(spacing=10)
-        hunger_box.add_widget(Label(text='[肉] 饱食度:', size_hint_x=0.25, font_size='16sp', font_name='DefaultFont'))
+        hunger_box.add_widget(Label(text='饱食度:', size_hint_x=0.25, font_size='16sp', font_name='DefaultFont'))
         self.hunger_bar = ProgressBar(max=100, value=80, size_hint_x=0.5)
         hunger_box.add_widget(self.hunger_bar)
         self.hunger_label = Label(text='80/100', size_hint_x=0.25, font_size='14sp', font_name='DefaultFont')
@@ -136,7 +136,7 @@ class PigHomeScreen(Screen):
         
         # 快乐值
         happy_box = BoxLayout(spacing=10)
-        happy_box.add_widget(Label(text='[笑脸] 快乐值:', size_hint_x=0.25, font_size='16sp', font_name='DefaultFont'))
+        happy_box.add_widget(Label(text='快乐值:', size_hint_x=0.25, font_size='16sp', font_name='DefaultFont'))
         self.happy_bar = ProgressBar(max=100, value=80, size_hint_x=0.5)
         happy_box.add_widget(self.happy_bar)
         self.happy_label = Label(text='80/100', size_hint_x=0.25, font_size='14sp', font_name='DefaultFont')
@@ -145,7 +145,7 @@ class PigHomeScreen(Screen):
         
         # 成长值
         growth_box = BoxLayout(spacing=10)
-        growth_box.add_widget(Label(text='[上升] 成长值:', size_hint_x=0.25, font_size='16sp', font_name='DefaultFont'))
+        growth_box.add_widget(Label(text='成长值:', size_hint_x=0.25, font_size='16sp', font_name='DefaultFont'))
         self.growth_bar = ProgressBar(max=100, value=0, size_hint_x=0.5)
         growth_box.add_widget(self.growth_bar)
         self.growth_label = Label(text='0/100', size_hint_x=0.25, font_size='14sp', font_name='DefaultFont')
@@ -159,7 +159,7 @@ class PigHomeScreen(Screen):
         
         # 喂养按钮
         feed_btn = Button(
-            text='[肉] 喂养',
+            text='喂养',
             font_size='20sp',
             background_color=(0.95, 0.6, 0.3, 1),
             background_normal='',
@@ -170,7 +170,7 @@ class PigHomeScreen(Screen):
         
         # 玩耍按钮
         play_btn = Button(
-            text='[玩] 玩耍',
+            text='玩耍',
             font_size='20sp',
             background_color=(0.4, 0.7, 0.9, 1),
             background_normal='',
