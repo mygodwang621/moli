@@ -25,12 +25,17 @@ jobs:
       run: |
         # 找到 p4a 的 AndroidManifest 模板并注入 cutout 全屏支持
         TEMPLATE=$(python -c "import pythonforandroid,os; print(os.path.join(os.path.dirname(pythonforandroid.__file__), 'bootstraps', 'sdl2', 'build', 'templates', 'AndroidManifest.tmpl.xml'))")
+        echo "Template path: $TEMPLATE"
         if [ -f "$TEMPLATE" ]; then
-          sed -i 's/android:name="{{ args.activity }}"/android:name="{{ args.activity }}"\n            android:windowLayoutInDisplayCutoutMode="shortEdges"/' "$TEMPLATE"
-          echo "Patched p4a template: $TEMPLATE"
-          grep -A2 "windowLayoutInDisplayCutoutMode" "$TEMPLATE" || true
+          # 先查看模板中 activity 的写法
+          grep -n "android:name.*PythonActivity\|android:name.*activity" "$TEMPLATE" | head -5 || true
+          # 尝试多种匹配方式注入 cutout 属性
+          sed -i 's|android:name="org.kivy.android.PythonActivity"|android:name="org.kivy.android.PythonActivity"\n          android:windowLayoutInDisplayCutoutMode="shortEdges"|' "$TEMPLATE" || true
+          sed -i 's|android:name="{{ args.activity }}"|android:name="{{ args.activity }}"\n          android:windowLayoutInDisplayCutoutMode="shortEdges"|' "$TEMPLATE" || true
+          echo "Patch attempted. Verification:"
+          grep -A2 "windowLayoutInDisplayCutoutMode" "$TEMPLATE" || echo "Cutout not found in template"
         else
-          echo "Template not found, will try post-build patch"
+          echo "Template not found at $TEMPLATE"
         fi
 
     - name: Build APK
