@@ -1,4 +1,4 @@
-name: Build APK
+﻿name: Build APK
 
 on:
   workflow_dispatch:
@@ -21,6 +21,18 @@ jobs:
         sudo apt-get install -y python3-pip build-essential git ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev openjdk-17-jdk libtool autoconf automake pkg-config
         pip install buildozer==1.5.0 cython==0.29.37 python-for-android==2024.1.21
 
+    - name: Patch p4a manifest template
+      run: |
+        # 找到 p4a 的 AndroidManifest 模板并注入 cutout 全屏支持
+        TEMPLATE=$(python -c "import pythonforandroid,os; print(os.path.join(os.path.dirname(pythonforandroid.__file__), 'bootstraps', 'sdl2', 'build', 'templates', 'AndroidManifest.tmpl.xml'))")
+        if [ -f "$TEMPLATE" ]; then
+          sed -i 's/android:name="{{ args.activity }}"/android:name="{{ args.activity }}"\n            android:windowLayoutInDisplayCutoutMode="shortEdges"/' "$TEMPLATE"
+          echo "Patched p4a template: $TEMPLATE"
+          grep -A2 "windowLayoutInDisplayCutoutMode" "$TEMPLATE" || true
+        else
+          echo "Template not found, will try post-build patch"
+        fi
+
     - name: Build APK
       env:
         JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
@@ -38,3 +50,4 @@ jobs:
       with:
         name: molijiang-apk
         path: bin/*.apk
+
