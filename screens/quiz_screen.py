@@ -12,6 +12,7 @@ from kivy.graphics import Color, Rectangle
 from random import choice, shuffle
 from data.questions import QUESTIONS
 from data.game_data import game_data
+import platform
 
 
 class QuizScreen(Screen):
@@ -26,6 +27,8 @@ class QuizScreen(Screen):
         self.questions = []
         self.current_q_index = 0
         self.option_buttons = []
+        self.tts = None
+        self.tts_initialized = False
         self.build_ui()
     
     def build_ui(self):
@@ -120,13 +123,16 @@ class QuizScreen(Screen):
         main_layout.add_widget(self.pig_area)
 
         # ── 科目选择区 ──
-        self.subject_grid = GridLayout(cols=2, spacing=15, size_hint_y=0.35)
+        self.subject_grid = GridLayout(cols=3, spacing=12, size_hint_y=0.35)
 
         subjects = [
             ('语文', '📖', (0.85, 0.35, 0.35, 1)),
             ('数学', '🔢', (0.25, 0.55, 0.88, 1)),
             ('英语', '🔤', (0.35, 0.72, 0.35, 1)),
-            ('科学', '🔬', (0.7, 0.35, 0.85, 1))
+            ('科学', '🔬', (0.7, 0.35, 0.85, 1)),
+            ('道法', '⚖️', (0.9, 0.5, 0.2, 1)),
+            ('音乐', '🎵', (0.55, 0.3, 0.75, 1)),
+            ('美术', '🎨', (0.95, 0.6, 0.15, 1)),
         ]
 
         for subject, icon, color in subjects:
@@ -148,8 +154,8 @@ class QuizScreen(Screen):
         self.quiz_area.opacity = 0
         self.quiz_area.disabled = True
 
-        # 题目（带白色半透明背景，自动换行）
-        question_box = BoxLayout(size_hint_y=0.3, padding=12)
+        # 题目区（带白色半透明背景，自动换行）+ 语音按钮
+        question_box = BoxLayout(size_hint_y=0.3, padding=12, spacing=8)
         with question_box.canvas.before:
             Color(1, 1, 1, 0.92)
             question_box.rect = Rectangle(pos=question_box.pos, size=question_box.size)
@@ -163,11 +169,24 @@ class QuizScreen(Screen):
             valign='middle',
             text_size=(None, None),
             color=(0.15, 0.15, 0.15, 1),
-            font_name='DefaultFont'
+            font_name='DefaultFont',
+            size_hint_x=0.82
         )
         self.bind(size=self.update_question_text_size)
 
+        # 语音朗读按钮
+        self.speak_btn = Button(
+            text='🔊',
+            font_size='24sp',
+            size_hint_x=0.18,
+            background_color=(0.25, 0.65, 0.88, 1),
+            background_normal='',
+            color=(1, 1, 1, 1)
+        )
+        self.speak_btn.bind(on_press=lambda x: self.speak_question())
+
         question_box.add_widget(self.question_label)
+        question_box.add_widget(self.speak_btn)
         self.quiz_area.add_widget(question_box)
 
         # 选项按钮（深色背景 + 白色文字，确保可读）
@@ -217,14 +236,15 @@ class QuizScreen(Screen):
     def update_question_text_size(self, *args):
         """更新题目文本宽度以实现自动换行"""
         if hasattr(self, 'question_label'):
-            # 设置text_size为标签宽度的90%，允许换行
-            self.question_label.text_size = (self.width * 0.85, None)
+            # 设置text_size为标签宽度的85%，允许换行（留出语音按钮位置）
+            self.question_label.text_size = (self.width * 0.68, None)
     
     def start_quiz(self, subject):
         """开始答题"""
         self.current_subject = subject
         # 科目图标映射
-        subject_icons = {'语文': '📖', '数学': '🔢', '英语': '🔤', '科学': '🔬'}
+        subject_icons = {'语文': '📖', '数学': '🔢', '英语': '🔤', '科学': '🔬',
+                        '道法': '⚖️', '音乐': '🎵', '美术': '🎨'}
         icon = subject_icons.get(subject, '📚')
         self.subject_label.text = f'{icon} {subject}'
 
@@ -248,12 +268,54 @@ class QuizScreen(Screen):
 
         self.show_question()
     
+    def init_tts(self):
+        """初始化Android TTS"""
+        if self.tts_initialized:
+            return
+        try:
+            if platform.system() not in ('Windows', 'Linux', 'Darwin'):
+                from jnius import autoclass
+                from android.runnable import run_on_ui_thread
+                Context = autoclass('android.content.Context')
+                TextToSpeech = autoclass('android.speech.tts.TextToSpeech')
+                PythonActivity = autoclass('org.kivy.android.PythonActivity')
+                activity = PythonActivity.mActivity
+
+                @run_on_ui_thread
+                def _init():
+                    self.tts = TextToSpeech(activity, None)
+                    self.tts.setLanguage(autoclass('java.util.Locale').CHINESE)
+                _init()
+                self.tts_initialized = True
+        except Exception:
+            pass
+
+    def speak_question(self):
+        """语音朗读当前题目"""
+        if not self.current_question:
+            return
+        try:
+            if platform.system() not in ('Windows', 'Linux', 'Darwin'):
+                from jnius import autoclass
+                from android.runnable import run_on_ui_thread
+                @run_on_ui_thread
+                def _speak():
+                    if self.tts:
+                        self.tts.speak(self.current_question, autoclass('android.speech.tts.TextToSpeech').QUEUE_FLUSH, None)
+                _speak()
+        except Exception:
+            pass
+
     def show_question(self):
         """显示当前题目"""
         if self.current_q_index < len(self.questions):
             q = self.questions[self.current_q_index]
             self.current_question = q['question']
             self.question_label.text = f'第 {self.current_q_index + 1}/{len(self.questions)} 题\n{q["question"]}'
+
+            # 初始化TTS并自动朗读
+            self.init_tts()
+            Clock.schedule_once(lambda dt: self.speak_question(), 0.3)
 
             # 猪小弟鼓励话
             encourage_msgs = ['加油！我陪你答题~', '相信自己！', '你一定行的！', '仔细想想~', '这题不难的！']
