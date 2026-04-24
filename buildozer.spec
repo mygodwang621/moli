@@ -20,8 +20,8 @@ version = 1.0.0
 # 依赖项
 requirements = python3,kivy
 
-# 图标
-icon.filename = assets/images/characters/molijiang.png
+# 图标（如果有的话）
+# icon.filename = assets/icon.png
 
 # 权限
 android.permissions = INTERNET
