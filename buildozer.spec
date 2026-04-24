@@ -44,7 +44,7 @@ orientation = portrait
 fullscreen = 1
 
 # p4a hook：打包时修改 AndroidManifest 加入 cutout 全屏支持
-p4a.hook = p4a_hook.py
+# p4a hook removed
 
 [buildozer]
 # 日志级别
